@@ -1,5 +1,6 @@
 {
   "imports": {
+    "cheerio": "npm:cheerio@^1.0.0",
     "hono": "jsr:@hono/hono@^4.6.16"
   },
   "tasks": {

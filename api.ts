@@ -1,20 +1,23 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import data from "./data.json" with { type: "json" };
+import { fetchProgramme, fetchEpisode } from "./lib/bbc.ts"
 
 
 const api = new Hono()
-api.use('*', cors())
-api.get("", (c) => c.json(data));
+// api.use('*', cors())
+api.get("/pm/:st/:dt", async (c) => {
+  const {st, dt} = c.req.param()
+  const data = await fetchProgramme(st, dt)
 
-api.get("/:dinosaur", (c) => {
-    const dinosaur = c.req.param("dinosaur").toLowerCase();
-    const found = data.find((item) => item.name.toLowerCase() === dinosaur);
-    if (found) {
-      return c.json(found);
-    } else {
-      return c.text("No dinosaurs found.");
-    }
+  return c.json({data: data, ok:true});
+    
   });
 
-  export default api
+api.get('/ep/:id', async (c) => {
+  const {id} = c.req.param();
+  const data = await fetchEpisode(id);
+  return c.json({data: data, ok:true});
+})
+
+
+export default api
