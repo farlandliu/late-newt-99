@@ -32,3 +32,10 @@ export  function parseEpisode (body:string) {
     const jsonData = JSON.parse(jsonStr);
     return jsonData.tracklist.tracks
 }
+
+export function parse6MusicPm(body:string) {
+    const $ = cheerio.load(body);
+    const jsonData = $("[id='__NEXT_DATA__']").text().replace('type="application/json">', "");
+    const data = JSON.parse(jsonData);
+    return data?.props.pageProps.dehydratedState.queries[0].state.data.data[1].data
+}
