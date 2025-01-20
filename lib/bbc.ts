@@ -16,7 +16,7 @@ export async function fetchProgramme(st: string, dt: string) {
 }
 
 export async function fetchEpisode(id: string) {
-  const url = player_url.replace("{bid}", id);
+  const url = player_url.replace("{pid}", id);
   const res = await fetch(url);
   if (res.ok) {
     const t = await res.text();
@@ -51,7 +51,7 @@ export function parse6MusicPm(body: string) {
 }
 
 export async function fetchBrandMeta(bid: string) {
-  const url = brand_url.replace("{id}", bid);
+  const url = brand_url.replace("{bid}", bid);
   const res = await fetch(url);
   const t = await res.text();
   return parseBrandMeta(t)
