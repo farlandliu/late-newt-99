@@ -16,10 +16,15 @@ export async function fetchProgramme(st: string, dt: string) {
 }
 
 export async function fetchEpisode(id: string) {
-  const url = player_url.replace("{pid}", id);
+  const url = player_url.replace("{bid}", id);
   const res = await fetch(url);
-  const t = await res.text();
-  return parseEpisode(t);
+  if (res.ok) {
+    const t = await res.text();
+    return parseEpisode(t);
+  } else {
+    return ({ok:false})
+  }
+  
 }
 
 export function parseEpisode(body: string) {
