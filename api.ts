@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { fetchEpisode, fetchProgramme } from "./lib/bbc.ts";
+import { fetchEpisode, fetchProgramme, fetchBrandMeta } from "./lib/bbc.ts";
 
 const api = new Hono();
 // api.use('*', cors())
@@ -21,5 +21,12 @@ api.get("/ep/:id", async (c) => {
   const data = await fetchEpisode(id);
   return c.json({ data: data, ok: true });
 });
+
+api.get("/bd/:id", async (c) => {
+  const { id } = c.req.param();
+  const data = await fetchBrandMeta(id);
+  return c.json({ data: data, ok: true });
+});
+
 
 export default api;
