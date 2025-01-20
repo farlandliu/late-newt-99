@@ -17,14 +17,9 @@ export async function fetchProgramme(st: string, dt: string) {
 
 export async function fetchEpisode(id: string) {
   const url = player_url.replace("{pid}", id);
-  const res = await fetch(url);
-  if (res.ok) {
-    const t = await res.text();
-    return parseEpisode(t);
-  } else {
-    return ({ok:false})
-  }
-  
+  const res = await fetch(url); 
+  const t = await res.text();
+  return parseEpisode(t);
 }
 
 export function parseEpisode(body: string) {
