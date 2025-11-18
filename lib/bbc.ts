@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 const schedule_url: string =
-  "https://www.bbc.co.uk/sounds/schedules/{st}/{dt}/";
+  "https://www.bbc.co.uk/schedules/{st}/{dt}/";
 const player_url: string = "https://www.bbc.co.uk/sounds/play/{pid}";
 const brand_url: string = "https://www.bbc.co.uk/sounds/brand/{bid}";
 
@@ -13,6 +13,19 @@ export async function fetchProgramme(st: string, dt: string) {
   const data = jsonData?.props.pageProps.dehydratedState.queries[1];
   const eps = data.state.data.data[0].data;
   return eps;
+}
+// m002lsc4
+
+export async function fetchProgrammeRaw(st: string, dt: string) {
+  const url = schedule_url.replace("{dt}", dt).replace("{st}", st);
+  const res = await fetch(url);
+  console.log(`fetch url: ${url}`)
+  const t = await res.text();
+  const $ = cheerio.load(t);
+  const txt = $("[type='application/ld+json']").text()
+  // const jsonData = JSON.parse($("[type='application/ld+json']").text());
+  // const data = jsonData?.props.pageProps.dehydratedState.queries[1];
+  return txt;
 }
 
 export async function fetchEpisode(id: string) {
@@ -74,4 +87,31 @@ export function parseBrandMeta(body: string) {
     image: image,
     icon: icon,
   };
+}
+
+ import * as path from "node:path";
+
+// load tests files for testing
+export async function loadTestFile() {
+  const fs = await import("node:fs/promises");
+
+  const __dirname = path.dirname(new URL(import.meta.url).pathname);
+  const filePath = path.join(__dirname, "..", "tests", "html", "schedule.html");
+  const data = await fs.readFile(filePath, "utf8");
+  const $ = cheerio.load(data);
+  let txt = '';
+  $("script[type='application/ld+json']").each((_i, el) => {
+    // console.log($(el).text());
+    const raw = $(el).html();
+    if (raw?.includes('RadioEpisode')) {
+      txt = raw || '';
+    }
+  }
+  );
+  try {
+    return txt ? JSON.parse(txt) : null;
+  } catch (e) {
+    console.error("Error parsing JSON from test file:", e);
+  }
+  return null;
 }
