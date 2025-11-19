@@ -7,14 +7,33 @@ const radioSeries_url: string = "https://www.bbc.co.uk/programmes/m001hvms/episo
 
 
 export async function fetchProgramme(st: string, dt: string) {
-  const url = schedule_url.replace("{dt}", dt).replace("{st}", st);
+  const dt2 = dt.replace("-", "/");
+  const url = schedule_url.replace("{dt}", dt2).replace("{st}", st);
+  console.log(`fetch url: ${url}`)
   const res = await fetch(url);
   const t = await res.text();
   const $ = cheerio.load(t);
-  const jsonData = JSON.parse($("[id='__NEXT_DATA__']").text());
-  const data = jsonData?.props.pageProps.dehydratedState.queries[1];
-  const eps = data.state.data.data[0].data;
-  return eps;
+  
+  let txt = '';
+  $("script[type='application/ld+json']").each((_i, el) => {
+    // console.log($(el).text());
+    const raw = $(el).html();
+    if (raw?.includes('RadioEpisode')) {
+      txt = raw || '';
+    }
+  });
+  try {
+    const jsonData = JSON.parse(txt)
+    // const data = jsonData?.props.pageProps.dehydratedState.queries[1];
+    // const eps = data.state.data.data[0].data;
+
+    return jsonData;
+  }
+  catch (e) {
+    console.error("Error parsing JSON:", e);
+  }
+  return null;
+  
 }
 // m002lsc4
 // fetch radio series by brand id: m001hvms
@@ -36,12 +55,21 @@ export async function fetchSeriesByBrandId(bid: string) {
 }
 
 export async function fetchProgrammeRaw(st: string, dt: string) {
-  const url = schedule_url.replace("{dt}", dt).replace("{st}", st);
+  const dt2 = dt.replace("-", "/");
+  const url = schedule_url.replace("{dt}", dt2).replace("{st}", st);
   const res = await fetch(url);
   console.log(`fetch url: ${url}`)
   const t = await res.text();
   const $ = cheerio.load(t);
-  const txt = $("[type='application/ld+json']").text()
+
+  let txt = '';
+  $("script[type='application/ld+json']").each((_i, el) => {
+    // console.log($(el).text());
+    const raw = $(el).html();
+    if (raw?.includes('RadioEpisode')) {
+      txt = raw || '';
+    }
+  });
   // const jsonData = JSON.parse($("[type='application/ld+json']").text());
   // const data = jsonData?.props.pageProps.dehydratedState.queries[1];
   return txt;
