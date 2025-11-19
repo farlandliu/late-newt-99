@@ -2,7 +2,7 @@ import { assertEquals } from "jsr:@std/assert";
 import { parseEpisode, parse6MusicPm, parseBrandMeta } from "../lib/bbc.ts";
 
 Deno.test("test episode parser", ()=> {
-    const epData =  Deno.readTextFileSync("./tests/html/ep-m0025v3k.html");
+    const epData =  Deno.readTextFileSync("tests/html/ep-m002lsc4.html");
 
     const res = parseEpisode(epData);
     console.log(res.length)

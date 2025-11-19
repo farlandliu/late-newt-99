@@ -13,7 +13,7 @@ app.use(
   poweredBy({ serverName: "BBC radio api, Powered by Deno & Hono." }),
 );
 app.get("/", (c) => {
-  return c.json({ ok: true, message: "Hello, from BBC radio api. " });
+  return c.json({ ok: true, message: "Hello, from BBC radio api. 2025-11-19 " });
 });
 app.notFound((c) => c.json({ message: "Not Found", ok: false }, 404));
 

@@ -3,6 +3,8 @@ const schedule_url: string =
   "https://www.bbc.co.uk/schedules/{st}/{dt}/";
 const player_url: string = "https://www.bbc.co.uk/sounds/play/{pid}";
 const brand_url: string = "https://www.bbc.co.uk/sounds/brand/{bid}";
+const radioSeries_url: string = "https://www.bbc.co.uk/programmes/m001hvms/episodes/player"
+
 
 export async function fetchProgramme(st: string, dt: string) {
   const url = schedule_url.replace("{dt}", dt).replace("{st}", st);
@@ -15,6 +17,23 @@ export async function fetchProgramme(st: string, dt: string) {
   return eps;
 }
 // m002lsc4
+// fetch radio series by brand id: m001hvms
+export async function fetchSeriesByBrandId(bid: string) {
+  const url = radioSeries_url.replace("{bid}", bid);
+  console.log(url)
+  const res = await fetch(url)
+  const $ = cheerio.load(await res.text());
+  let txt = '';
+  $("[type='application/ld+json']").each((_i, el) => {
+   
+    const raw = $(el).text();
+    if (raw?.includes('RadioSeries')) {
+      txt = raw || '';
+    }
+  }
+  );
+  return JSON.parse(txt);
+}
 
 export async function fetchProgrammeRaw(st: string, dt: string) {
   const url = schedule_url.replace("{dt}", dt).replace("{st}", st);
@@ -37,14 +56,20 @@ export async function fetchEpisode(id: string) {
 
 export function parseEpisode(body: string) {
   const $ = cheerio.load(body);
-  const filter = $("script").filter((_index, em) => {
-    return $(em).text().includes("window.__PRELOADED_STATE__ =");
-  });
-  const jsonStr = filter.text().replace("window.__PRELOADED_STATE__ =", "")
-    .slice(0, -2);
+  // const filter = $("script").filter((_index, em) => {
+  //   return $(em).text().includes("window.__PRELOADED_STATE__ =");
+  // });
+  // const jsonStr = filter.text().replace("window.__PRELOADED_STATE__ =", "")
+  //   .slice(0, -2);
 
-  const jsonData = JSON.parse(jsonStr);
-  return jsonData.tracklist.tracks;
+  const jsonData = JSON.parse($("[id='__NEXT_DATA__']").text());
+  // return jsonData;
+  try {
+    return jsonData?.props.pageProps.dehydratedState.queries[1].state.data.data;
+  } catch (e) {
+    console.error("Error parsing episode data:", e);
+  }
+  return null;
 }
 
 export function parse6MusicPm(body: string) {
@@ -55,7 +80,7 @@ export function parse6MusicPm(body: string) {
   );
   const data = JSON.parse(jsonData);
   return data?.props.pageProps.dehydratedState.queries[0].state.data.data[1]
-    .data;
+    .data[0].data;
 }
 
 export async function fetchBrandMeta(bid: string) {
